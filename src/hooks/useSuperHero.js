@@ -5,9 +5,9 @@ const fetchHeros = () => {
   return axios.get("http://localhost:4000/superheroes");
 };
 
-const addSuperHero = (hero)=>{
-  return axios.post("http://localhost:4000/superheroes", hero)
-}
+const addSuperHero = (hero) => {
+  return axios.post("http://localhost:4000/superheroes", hero);
+};
 
 export const useSuperHero = (onSuccess, onError) => {
   return useQuery("super-heroes", fetchHeros, {
@@ -20,14 +20,20 @@ export const useSuperHero = (onSuccess, onError) => {
   });
 };
 
-export const useAddSuperHero = ()=>{
-  const queryClient = useQueryClient()
-  return useMutation(addSuperHero,{
-    onSuccess:()=>{
+export const useAddSuperHero = () => {
+  const queryClient = useQueryClient();
+  return useMutation(addSuperHero, {
+    onSuccess: (data) => {
       //Get data fetching Automaticly with query
-      queryClient.invalidateQueries('super-heroes')
-    }
-  })
-}
+      // queryClient.invalidateQueries('super-heroes')
 
-
+      //Handle Mutuation Response
+      queryClient.setQueriesData("super-heroes", (oldQueryData) => {
+        return {
+          ...oldQueryData,
+          data: [...oldQueryData.data, data.data],
+        };
+      });
+    },
+  });
+};
