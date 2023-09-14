@@ -23,17 +23,41 @@ export const useSuperHero = (onSuccess, onError) => {
 export const useAddSuperHero = () => {
   const queryClient = useQueryClient();
   return useMutation(addSuperHero, {
-    onSuccess: (data) => {
-      //Get data fetching Automaticly with query
-      // queryClient.invalidateQueries('super-heroes')
+    // onSuccess: (data) => {
+    //   //Get data fetching Automaticly with query
+    //   // queryClient.invalidateQueries('super-heroes')
 
-      //Handle Mutuation Response
-      queryClient.setQueriesData("super-heroes", (oldQueryData) => {
+    //   //Handle Mutuation Response
+    //   queryClient.setQueriesData("super-heroes", (oldQueryData) => {
+    //     return {
+    //       ...oldQueryData,
+    //       data: [...oldQueryData.data, data.data],
+    //     };
+    //   });
+    // },
+
+    onMutate: async (newHero) => {
+      await queryClient.cancelQueries("super-heroes");
+      const prevHeroData = queryClient.getQueryData("super-heroes");
+      queryClient.setQueryData("super-heroes", (oldQueryData) => {
         return {
           ...oldQueryData,
-          data: [...oldQueryData.data, data.data],
+          data: [
+            ...oldQueryData.data,
+            //we can use uuid for generate id here
+            { id: oldQueryData?.data?.length + 1, ...newHero },
+          ],
         };
       });
+      return {
+        prevHeroData,
+      };
+    },
+    onError: (_error, _hero, context) => {
+      queryClient.setQueryData("super-heroes", context.prevHeroData);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries("super-heroes");
     },
   });
 };

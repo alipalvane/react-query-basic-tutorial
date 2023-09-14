@@ -19,14 +19,14 @@ const RQSuperHeros = () => {
     console.log("start after fetching is Eroooooor");
   };
 
-  const { isLoading, data, isError, error, isFetching, refetch } = useSuperHero(
+  const { isLoading, data, isError, error, refetch } = useSuperHero(
     onSuccess,
     onError
   );
 
   const { mutate: addHero } = useAddSuperHero();
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return <h1>Loading...</h1>;
   }
   if (isError) {
